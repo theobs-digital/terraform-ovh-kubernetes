@@ -6,16 +6,16 @@ mock_provider "ovh" {}
 
 variables {
   service_name       = "test-project-id"
-  kubernetes_name    = "test-cluster-np"
+  name               = "test-cluster-np"
   kubernetes_version = "1.32"
-  kubernetes_region  = "GRA7"
+  region             = "GRA7"
 
-  kubernetes_nodepools = [
-    {
+  nodepools = {
+    general = {
       name        = "general"
       flavor_name = "b3-8"
-    },
-    {
+    }
+    workers = {
       name          = "workers"
       flavor_name   = "b3-16"
       desired_nodes = 2
@@ -41,8 +41,8 @@ variables {
           ]
         }
       }
-    },
-  ]
+    }
+  }
 }
 
 run "nodepools_plan" {

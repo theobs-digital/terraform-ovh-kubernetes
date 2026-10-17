@@ -5,15 +5,15 @@ module "kubernetes" {
   source = "../../"
 
   service_name       = var.service_name
-  kubernetes_name    = "my-cluster"
+  name               = "my-cluster"
   kubernetes_version = "1.32"
-  kubernetes_region  = "GRA7"
+  region             = "GRA7"
 
   # Single node pool with defaults
-  kubernetes_nodepools = [
-    {
+  nodepools = {
+    default = {
       name        = "default"
       flavor_name = "b3-8"
-    },
-  ]
+    }
+  }
 }

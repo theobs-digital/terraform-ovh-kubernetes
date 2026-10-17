@@ -4,15 +4,15 @@
 
 resource "ovh_cloud_project_kube" "this" {
   service_name             = var.service_name
-  name                     = var.kubernetes_name
+  name                     = var.name
   version                  = var.kubernetes_version
-  plan                     = var.kubernetes_plan
-  region                   = var.kubernetes_region
-  kube_proxy_mode          = var.kubernetes_proxy_mode
-  update_policy            = var.kubernetes_update_policy
-  private_network_id       = var.kubernetes_private_network_id
-  nodes_subnet_id          = var.kubernetes_nodes_subnet_id
-  load_balancers_subnet_id = var.kubernetes_load_balancers_subnet_id
+  plan                     = var.plan
+  region                   = var.region
+  kube_proxy_mode          = var.kube_proxy_mode
+  update_policy            = var.update_policy
+  private_network_id       = var.private_network_id
+  nodes_subnet_id          = var.nodes_subnet_id
+  load_balancers_subnet_id = var.load_balancers_subnet_id
 
   ###########################################
   # API Server Customization
@@ -20,9 +20,9 @@ resource "ovh_cloud_project_kube" "this" {
 
   dynamic "customization_apiserver" {
     for_each = (
-      length(var.kubernetes_customization_apiserver.enabled) +
-      length(var.kubernetes_customization_apiserver.disabled)
-    ) > 0 ? [var.kubernetes_customization_apiserver] : []
+      length(var.customization_apiserver.enabled) +
+      length(var.customization_apiserver.disabled)
+    ) > 0 ? [var.customization_apiserver] : []
 
     content {
       admissionplugins {
@@ -38,9 +38,9 @@ resource "ovh_cloud_project_kube" "this" {
 
   dynamic "customization_kube_proxy" {
     for_each = (
-      var.kubernetes_customization_kube_proxy.iptables != null ||
-      var.kubernetes_customization_kube_proxy.ipvs != null
-    ) ? [var.kubernetes_customization_kube_proxy] : []
+      var.customization_kube_proxy.iptables != null ||
+      var.customization_kube_proxy.ipvs != null
+    ) ? [var.customization_kube_proxy] : []
 
     content {
       dynamic "iptables" {
@@ -86,20 +86,20 @@ resource "ovh_cloud_project_kube" "this" {
 ##############################
 
 resource "ovh_cloud_project_kube_oidc" "this" {
-  count = var.kubernetes_oidc != null ? 1 : 0
+  count = var.oidc != null ? 1 : 0
 
   service_name = var.service_name
   kube_id      = ovh_cloud_project_kube.this.id
 
-  client_id            = var.kubernetes_oidc.client_id
-  issuer_url           = var.kubernetes_oidc.issuer_url
-  oidc_username_claim  = var.kubernetes_oidc.oidc_username_claim
-  oidc_username_prefix = var.kubernetes_oidc.oidc_username_prefix
-  oidc_groups_claim    = var.kubernetes_oidc.oidc_groups_claim
-  oidc_groups_prefix   = var.kubernetes_oidc.oidc_groups_prefix
-  oidc_required_claim  = var.kubernetes_oidc.oidc_required_claim
-  oidc_signing_algs    = var.kubernetes_oidc.oidc_signing_algs
-  oidc_ca_content      = var.kubernetes_oidc.oidc_ca_content
+  client_id            = var.oidc.client_id
+  issuer_url           = var.oidc.issuer_url
+  oidc_username_claim  = var.oidc.oidc_username_claim
+  oidc_username_prefix = var.oidc.oidc_username_prefix
+  oidc_groups_claim    = var.oidc.oidc_groups_claim
+  oidc_groups_prefix   = var.oidc.oidc_groups_prefix
+  oidc_required_claim  = var.oidc.oidc_required_claim
+  oidc_signing_algs    = var.oidc.oidc_signing_algs
+  oidc_ca_content      = var.oidc.oidc_ca_content
 }
 
 ##############################
@@ -107,11 +107,11 @@ resource "ovh_cloud_project_kube_oidc" "this" {
 ##############################
 
 resource "ovh_cloud_project_kube_iprestrictions" "this" {
-  count = length(var.kubernetes_ip_restrictions) > 0 ? 1 : 0
+  count = length(var.ips) > 0 ? 1 : 0
 
   service_name = var.service_name
   kube_id      = ovh_cloud_project_kube.this.id
-  ips          = var.kubernetes_ip_restrictions
+  ips          = var.ips
 }
 
 ##############################
@@ -119,7 +119,7 @@ resource "ovh_cloud_project_kube_iprestrictions" "this" {
 ##############################
 
 resource "ovh_cloud_project_kube_nodepool" "this" {
-  for_each = { for np in var.kubernetes_nodepools : np.name => np }
+  for_each = var.nodepools
 
   service_name       = var.service_name
   kube_id            = ovh_cloud_project_kube.this.id

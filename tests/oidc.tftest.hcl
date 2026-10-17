@@ -6,9 +6,9 @@ mock_provider "ovh" {}
 
 variables {
   service_name       = "test-project-id"
-  kubernetes_name    = "test-cluster-oidc"
+  name               = "test-cluster-oidc"
   kubernetes_version = "1.32"
-  kubernetes_region  = "GRA7"
+  region             = "GRA7"
 }
 
 # --- OIDC enabled ---
@@ -17,7 +17,7 @@ run "oidc_enabled_plan" {
   command = plan
 
   variables {
-    kubernetes_oidc = {
+    oidc = {
       client_id           = "my-k8s-client"
       issuer_url          = "https://auth.example.com/realms/k8s"
       oidc_groups_claim   = ["groups"]
@@ -28,7 +28,7 @@ run "oidc_enabled_plan" {
 
   assert {
     condition     = length(ovh_cloud_project_kube_oidc.this) == 1
-    error_message = "OIDC resource should be created when kubernetes_oidc is set"
+    error_message = "OIDC resource should be created when oidc is set"
   }
 
   assert {
@@ -54,6 +54,6 @@ run "oidc_disabled_plan" {
 
   assert {
     condition     = length(ovh_cloud_project_kube_oidc.this) == 0
-    error_message = "OIDC resource should not be created when kubernetes_oidc is null"
+    error_message = "OIDC resource should not be created when oidc is null"
   }
 }
