@@ -1,0 +1,51 @@
+# Creates the GitHub release of each tag, with the tag's section of the
+# CHANGELOG as notes: vX.Y.Z in a single-module repository, <module>/vX.Y.Z in
+# a monorepository. Run it by hand for a tag pushed before this workflow.
+name: Release
+
+on:
+  push:
+    tags: ["v*", "*/v*"]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Tag to publish, such as v1.2.0 or cloudflare-dns/v1.2.0
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      TAG: ${{ github.event_name == 'push' && github.ref_name || inputs.tag }}
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Create the release from the CHANGELOG
+        run: |
+          if gh release view "$TAG" > /dev/null 2>&1; then
+            echo "$TAG is already released"
+            exit 0
+          fi
+          version=${TAG##*v}
+          module=${TAG%v"$version"}
+          changelog="${module}CHANGELOG.md"
+          gh api "repos/$GH_REPO/contents/$changelog?ref=$TAG" -H "Accept: application/vnd.github.raw" > CHANGELOG.md
+          # From "## [X.Y.Z]" to the next version or the link definitions.
+          awk -v head="## [$version]" '
+            index($0, head) == 1 { found = 1; next }
+            found && (/^## \[/ || /^\[[^]]+\]: /) { exit }
+            found { print }
+          ' CHANGELOG.md > notes.md
+          if ! grep -q '[^[:space:]]' notes.md; then
+            echo "::error::$changelog has no section for $version"
+            exit 1
+          fi
+          name=${module%/}
+          gh release create "$TAG" --verify-tag --title "${name:-${GH_REPO#*/}} v$version" --notes-file notes.md
