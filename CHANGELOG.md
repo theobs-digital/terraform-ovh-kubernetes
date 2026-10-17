@@ -7,6 +7,8 @@ and this module adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [2.0.0] - 2026-10-17
+
 ### Changed
 
 - **BREAKING**: variables aligned on the provider's attributes:
@@ -68,6 +70,7 @@ and this module adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.
 - Native Terraform tests (`terraform test`) with mock provider
 - Examples: basic and complete
 
-[Unreleased]: https://github.com/theobs-digital/terraform-ovh-kubernetes/compare/v1.0.1...main
+[Unreleased]: https://github.com/theobs-digital/terraform-ovh-kubernetes/compare/v2.0.0...main
+[2.0.0]: https://github.com/theobs-digital/terraform-ovh-kubernetes/compare/v1.0.1...v2.0.0
 [1.0.1]: https://github.com/theobs-digital/terraform-ovh-kubernetes/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/theobs-digital/terraform-ovh-kubernetes/releases/tag/v1.0.0
