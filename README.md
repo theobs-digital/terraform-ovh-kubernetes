@@ -18,7 +18,7 @@ Module Terraform pour deployer un cluster Kubernetes manage (MKS) sur OVHcloud.
 
 ```hcl
 module "kubernetes" {
-  source = "git::https://github.com/theobs-digital/terraform-ovh-kubernetes.git?ref=v1.0.1"
+  source = "git::https://github.com/theobs-digital/terraform-ovh-kubernetes.git?ref=v2.0.0"
 
   service_name       = "your-ovh-project-id"
   name               = "my-cluster"
@@ -27,7 +27,6 @@ module "kubernetes" {
 
   nodepools = {
     default = {
-      name        = "default"
       flavor_name = "b3-8"
     }
   }
@@ -38,7 +37,7 @@ module "kubernetes" {
 
 ```hcl
 module "kubernetes" {
-  source = "git::https://github.com/theobs-digital/terraform-ovh-kubernetes.git?ref=v1.0.1"
+  source = "git::https://github.com/theobs-digital/terraform-ovh-kubernetes.git?ref=v2.0.0"
 
   service_name       = "your-ovh-project-id"
   name               = "my-cluster-prod"
@@ -59,8 +58,10 @@ module "kubernetes" {
   update_policy = "MINIMAL_DOWNTIME"
 
   customization_apiserver = {
-    enabled  = ["NodeRestriction"]
-    disabled = ["AlwaysPullImages"]
+    admissionplugins = {
+      enabled  = ["NodeRestriction"]
+      disabled = ["AlwaysPullImages"]
+    }
   }
 
   # OIDC
@@ -75,7 +76,6 @@ module "kubernetes" {
 
   nodepools = {
     general = {
-      name          = "general"
       flavor_name   = "b3-8"
       desired_nodes = 3
       max_nodes     = 5
@@ -83,7 +83,6 @@ module "kubernetes" {
       autoscale     = true
     }
     gpu = {
-      name          = "gpu"
       flavor_name   = "t2-45"
       desired_nodes = 1
       max_nodes     = 3
@@ -172,14 +171,16 @@ The following input variables are optional (have default values):
 
 #### <a name="input_customization_apiserver"></a> [customization\_apiserver](#input\_customization\_apiserver)
 
-Description: Kubernetes API server admission plugins customization.
+Description: Kubernetes API server customization, shaped as the provider's `customization_apiserver` block: `admissionplugins`, with the `enabled` and `disabled` plugins.
 
 Type:
 
 ```hcl
 object({
-    enabled  = optional(list(string), [])
-    disabled = optional(list(string), [])
+    admissionplugins = optional(object({
+      enabled  = optional(list(string), [])
+      disabled = optional(list(string), [])
+    }), {})
   })
 ```
 
@@ -220,7 +221,7 @@ Default: `[]`
 
 #### <a name="input_kube_proxy_mode"></a> [kube\_proxy\_mode](#input\_kube\_proxy\_mode)
 
-Description: Kube-proxy mode: `iptables` or `ipvs`.
+Description: Kube-proxy mode: `iptables` or `ipvs`. Changing it recreates the cluster.
 
 Type: `string`
 
@@ -236,13 +237,12 @@ Default: `null`
 
 #### <a name="input_nodepools"></a> [nodepools](#input\_nodepools)
 
-Description: Kubernetes node pools to create, by a key of your choice. The key only names the node pool in the state: keep it stable, since renaming a key replaces the node pool.
+Description: Kubernetes node pools to create, by name: the key is the node pool's `name`, so renaming a key replaces the node pool.
 
 Type:
 
 ```hcl
 map(object({
-    name               = string
     flavor_name        = string
     desired_nodes      = optional(number, 1)
     availability_zones = optional(list(string), [])

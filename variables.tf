@@ -7,6 +7,7 @@ variable "name" {
   description = "Kubernetes cluster name."
   type        = string
 
+  # The OVHcloud console allows 5 to 63 characters; provider 2.22 checks nothing.
   validation {
     condition     = length(var.name) >= 5 && length(var.name) <= 63
     error_message = "name must be between 5 and 63 characters."
@@ -17,6 +18,7 @@ variable "kubernetes_version" {
   description = "Kubernetes version, such as `1.32` or `1.33`."
   type        = string
 
+  # Provider 2.22 takes any string, while MKS expects a minor release such as 1.32.
   validation {
     condition     = can(regex("^\\d+\\.\\d+$", var.kubernetes_version))
     error_message = "kubernetes_version must be in the format X.Y (e.g. 1.32)."
@@ -26,12 +28,8 @@ variable "kubernetes_version" {
 variable "plan" {
   description = "Kubernetes plan: `free` or `standard`."
   type        = string
-  default     = "free"
-
-  validation {
-    condition     = contains(["free", "standard"], var.plan)
-    error_message = "plan must be one of: free, standard."
-  }
+  # Free unless asked, whatever OVHcloud's default becomes.
+  default = "free"
 }
 
 variable "region" {
@@ -40,14 +38,11 @@ variable "region" {
 }
 
 variable "kube_proxy_mode" {
-  description = "Kube-proxy mode: `iptables` or `ipvs`."
+  description = "Kube-proxy mode: `iptables` or `ipvs`. Changing it recreates the cluster."
   type        = string
-  default     = "iptables"
-
-  validation {
-    condition     = contains(["iptables", "ipvs"], var.kube_proxy_mode)
-    error_message = "kube_proxy_mode must be one of: iptables, ipvs."
-  }
+  # Iptables unless asked, whatever OVHcloud's default becomes: the mode only
+  # changes by recreating the cluster.
+  default = "iptables"
 }
 
 variable "update_policy" {
@@ -55,6 +50,7 @@ variable "update_policy" {
   type        = string
   default     = null
 
+  # Provider 2.22 lets any value through: the API refuses it only at apply.
   validation {
     condition     = var.update_policy == null ? true : contains(["ALWAYS_UPDATE", "MINIMAL_DOWNTIME", "NEVER_UPDATE"], var.update_policy)
     error_message = "update_policy must be one of: ALWAYS_UPDATE, MINIMAL_DOWNTIME, NEVER_UPDATE."
@@ -89,11 +85,14 @@ variable "private_network_configuration" {
 }
 
 variable "customization_apiserver" {
-  description = "Kubernetes API server admission plugins customization."
+  description = "Kubernetes API server customization, shaped as the provider's `customization_apiserver` block: `admissionplugins`, with the `enabled` and `disabled` plugins."
   type = object({
-    enabled  = optional(list(string), [])
-    disabled = optional(list(string), [])
+    admissionplugins = optional(object({
+      enabled  = optional(list(string), [])
+      disabled = optional(list(string), [])
+    }), {})
   })
+  # Empty lists: no customization block.
   default = {}
 }
 
@@ -113,6 +112,7 @@ variable "customization_kube_proxy" {
       udp_timeout     = optional(string)
     }))
   })
+  # No iptables nor ipvs settings: no customization block.
   default = {}
 }
 
@@ -137,16 +137,17 @@ variable "ips" {
   type        = list(string)
   default     = []
 
+  # Provider 2.22 lets any string through, and the restrictions come after the
+  # cluster: a bad CIDR would leave it open until the next apply.
   validation {
     condition     = length(var.ips) == 0 || alltrue([for ip in var.ips : can(cidrnetmask(ip))])
-    error_message = "Each item in ips must be a valid CIDR block (e.g. 10.0.0.0/8)."
+    error_message = "Each item in ips must be a valid IPv4 CIDR block (e.g. 10.0.0.0/8)."
   }
 }
 
 variable "nodepools" {
-  description = "Kubernetes node pools to create, by a key of your choice. The key only names the node pool in the state: keep it stable, since renaming a key replaces the node pool."
+  description = "Kubernetes node pools to create, by name: the key is the node pool's `name`, so renaming a key replaces the node pool."
   type = map(object({
-    name               = string
     flavor_name        = string
     desired_nodes      = optional(number, 1)
     availability_zones = optional(list(string), [])
@@ -177,9 +178,4 @@ variable "nodepools" {
     }))
   }))
   default = {}
-
-  validation {
-    condition     = length(var.nodepools) == length(distinct([for np in var.nodepools : np.name]))
-    error_message = "Node pool names must be unique."
-  }
 }

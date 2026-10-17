@@ -25,7 +25,13 @@ and this module adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.
   | `kubernetes_customization_kube_proxy` | `customization_kube_proxy` |
   | `kubernetes_oidc` | `oidc` |
   | `kubernetes_ip_restrictions` | `ips` |
-  | `kubernetes_nodepools`, a list | `nodepools`, a map: key each node pool by its `name` to keep it in the state |
+  | `kubernetes_nodepools`, a list | `nodepools`, a map keyed by the node pool's name, without `name` in the object: key each node pool by its current name to keep it in the state |
+  | `customization_apiserver.enabled`, `.disabled` | `customization_apiserver.admissionplugins.enabled`, `.disabled`, as in the provider |
+
+### Removed
+
+- The validations of `plan` and `kube_proxy_mode`: the provider checks the same values at plan
+- The validation of unique node pool names: the map key is the name
 
 ## [1.0.1] - 2026-10-17
 

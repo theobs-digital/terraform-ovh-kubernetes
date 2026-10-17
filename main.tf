@@ -20,14 +20,14 @@ resource "ovh_cloud_project_kube" "this" {
 
   dynamic "customization_apiserver" {
     for_each = (
-      length(var.customization_apiserver.enabled) +
-      length(var.customization_apiserver.disabled)
+      length(var.customization_apiserver.admissionplugins.enabled) +
+      length(var.customization_apiserver.admissionplugins.disabled)
     ) > 0 ? [var.customization_apiserver] : []
 
     content {
       admissionplugins {
-        enabled  = customization_apiserver.value.enabled
-        disabled = customization_apiserver.value.disabled
+        enabled  = customization_apiserver.value.admissionplugins.enabled
+        disabled = customization_apiserver.value.admissionplugins.disabled
       }
     }
   }
@@ -123,7 +123,7 @@ resource "ovh_cloud_project_kube_nodepool" "this" {
 
   service_name       = var.service_name
   kube_id            = ovh_cloud_project_kube.this.id
-  name               = each.value.name
+  name               = each.key
   flavor_name        = each.value.flavor_name
   desired_nodes      = each.value.desired_nodes
   availability_zones = each.value.availability_zones

@@ -25,8 +25,10 @@ module "kubernetes" {
 
   # API Server customization
   customization_apiserver = {
-    enabled  = ["NodeRestriction"]
-    disabled = ["AlwaysPullImages"]
+    admissionplugins = {
+      enabled  = ["NodeRestriction"]
+      disabled = ["AlwaysPullImages"]
+    }
   }
 
   # OIDC authentication
@@ -47,7 +49,6 @@ module "kubernetes" {
   # Node Pools
   nodepools = {
     general = {
-      name          = "general"
       flavor_name   = "b3-8"
       desired_nodes = 3
       max_nodes     = 5
@@ -65,7 +66,6 @@ module "kubernetes" {
       }
     }
     gpu-workers = {
-      name           = "gpu-workers"
       flavor_name    = "t2-45"
       desired_nodes  = 1
       max_nodes      = 3
