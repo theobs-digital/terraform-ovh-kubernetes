@@ -12,7 +12,6 @@ module "kubernetes" {
   # Single node pool with defaults
   nodepools = {
     default = {
-      name        = "default"
       flavor_name = "b3-8"
     }
   }

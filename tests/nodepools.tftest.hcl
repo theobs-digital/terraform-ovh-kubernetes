@@ -12,11 +12,9 @@ variables {
 
   nodepools = {
     general = {
-      name        = "general"
       flavor_name = "b3-8"
     }
     workers = {
-      name          = "workers"
       flavor_name   = "b3-16"
       desired_nodes = 2
       max_nodes     = 10

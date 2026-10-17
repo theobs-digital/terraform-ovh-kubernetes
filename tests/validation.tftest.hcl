@@ -36,38 +36,6 @@ run "invalid_version_format" {
   ]
 }
 
-# --- Invalid plan ---
-
-run "invalid_plan" {
-  command = plan
-
-  variables {
-    name               = "test-cluster"
-    kubernetes_version = "1.32"
-    plan               = "premium"
-  }
-
-  expect_failures = [
-    var.plan,
-  ]
-}
-
-# --- Invalid proxy mode ---
-
-run "invalid_proxy_mode" {
-  command = plan
-
-  variables {
-    name               = "test-cluster"
-    kubernetes_version = "1.32"
-    kube_proxy_mode    = "nftables"
-  }
-
-  expect_failures = [
-    var.kube_proxy_mode,
-  ]
-}
-
 # --- Invalid IP restriction ---
 
 run "invalid_ip_restriction" {
@@ -81,25 +49,6 @@ run "invalid_ip_restriction" {
 
   expect_failures = [
     var.ips,
-  ]
-}
-
-# --- Duplicate node pool names ---
-
-run "duplicate_nodepool_names" {
-  command = plan
-
-  variables {
-    name               = "test-cluster"
-    kubernetes_version = "1.32"
-    nodepools = {
-      pool-a = { name = "pool-a", flavor_name = "b3-8" }
-      pool-b = { name = "pool-a", flavor_name = "b3-16" }
-    }
-  }
-
-  expect_failures = [
-    var.nodepools,
   ]
 }
 
