@@ -7,6 +7,8 @@ and this module adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [1.0.1] - 2026-10-17
+
 ### Fixed
 
 - Provider `ovh/ovh` `~> 2.7`, was `>= 1.0, < 2.0`: the `plan` attribute of `ovh_cloud_project_kube` exists only from 2.7.0, so 1.0.0 validated with no provider release it allowed
@@ -39,3 +41,7 @@ and this module adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.
 - Input validations (name length, version format, plan, proxy mode, CIDR, unique node pool names)
 - Native Terraform tests (`terraform test`) with mock provider
 - Examples: basic and complete
+
+[Unreleased]: https://github.com/theobs-digital/terraform-ovh-kubernetes/compare/v1.0.1...main
+[1.0.1]: https://github.com/theobs-digital/terraform-ovh-kubernetes/compare/v1.0.0...v1.0.1
+[1.0.0]: https://github.com/theobs-digital/terraform-ovh-kubernetes/releases/tag/v1.0.0
