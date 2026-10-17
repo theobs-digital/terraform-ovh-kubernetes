@@ -91,15 +91,15 @@ resource "ovh_cloud_project_kube_oidc" "this" {
   service_name = var.service_name
   kube_id      = ovh_cloud_project_kube.this.id
 
-  client_id              = var.kubernetes_oidc.client_id
-  issuer_url             = var.kubernetes_oidc.issuer_url
-  oidc_username_claim    = var.kubernetes_oidc.oidc_username_claim
-  oidc_username_prefix   = var.kubernetes_oidc.oidc_username_prefix
-  oidc_groups_claim      = var.kubernetes_oidc.oidc_groups_claim
-  oidc_groups_prefix     = var.kubernetes_oidc.oidc_groups_prefix
-  oidc_required_claim    = var.kubernetes_oidc.oidc_required_claim
-  oidc_signing_algs      = var.kubernetes_oidc.oidc_signing_algs
-  oidc_ca_content        = var.kubernetes_oidc.oidc_ca_content
+  client_id            = var.kubernetes_oidc.client_id
+  issuer_url           = var.kubernetes_oidc.issuer_url
+  oidc_username_claim  = var.kubernetes_oidc.oidc_username_claim
+  oidc_username_prefix = var.kubernetes_oidc.oidc_username_prefix
+  oidc_groups_claim    = var.kubernetes_oidc.oidc_groups_claim
+  oidc_groups_prefix   = var.kubernetes_oidc.oidc_groups_prefix
+  oidc_required_claim  = var.kubernetes_oidc.oidc_required_claim
+  oidc_signing_algs    = var.kubernetes_oidc.oidc_signing_algs
+  oidc_ca_content      = var.kubernetes_oidc.oidc_ca_content
 }
 
 ##############################

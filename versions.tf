@@ -3,8 +3,9 @@ terraform {
 
   required_providers {
     ovh = {
-      source  = "ovh/ovh"
-      version = ">= 1.0, < 2.0"
+      source = "ovh/ovh"
+      # 2.7.0: the plan attribute of ovh_cloud_project_kube.
+      version = "~> 2.7"
     }
   }
 }

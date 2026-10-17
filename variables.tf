@@ -64,7 +64,7 @@ variable "kubernetes_update_policy" {
   default     = null
 
   validation {
-    condition     = var.kubernetes_update_policy == null || contains(["ALWAYS_UPDATE", "MINIMAL_DOWNTIME", "NEVER_UPDATE"], var.kubernetes_update_policy)
+    condition     = var.kubernetes_update_policy == null ? true : contains(["ALWAYS_UPDATE", "MINIMAL_DOWNTIME", "NEVER_UPDATE"], var.kubernetes_update_policy)
     error_message = "kubernetes_update_policy must be one of: ALWAYS_UPDATE, MINIMAL_DOWNTIME, NEVER_UPDATE."
   }
 }
@@ -143,15 +143,15 @@ variable "kubernetes_customization_kube_proxy" {
 variable "kubernetes_oidc" {
   description = "OIDC configuration for the Kubernetes cluster"
   type = object({
-    client_id              = string
-    issuer_url             = string
-    oidc_username_claim    = optional(string)
-    oidc_username_prefix   = optional(string)
-    oidc_groups_claim      = optional(list(string))
-    oidc_groups_prefix     = optional(string)
-    oidc_required_claim    = optional(list(string))
-    oidc_signing_algs      = optional(list(string))
-    oidc_ca_content        = optional(string)
+    client_id            = string
+    issuer_url           = string
+    oidc_username_claim  = optional(string)
+    oidc_username_prefix = optional(string)
+    oidc_groups_claim    = optional(list(string))
+    oidc_groups_prefix   = optional(string)
+    oidc_required_claim  = optional(list(string))
+    oidc_signing_algs    = optional(list(string))
+    oidc_ca_content      = optional(string)
   })
   default = null
 }
