@@ -18,7 +18,7 @@ Module Terraform pour deployer un cluster Kubernetes manage (MKS) sur OVHcloud.
 
 ```hcl
 module "kubernetes" {
-  source = "git::https://github.com/your-org/terraform-ovh-kubernetes.git?ref=v1.0.0"
+  source = "git::https://github.com/theobs-digital/terraform-ovh-kubernetes.git?ref=v1.0.1"
 
   service_name       = "your-ovh-project-id"
   kubernetes_name    = "my-cluster"
@@ -38,7 +38,7 @@ module "kubernetes" {
 
 ```hcl
 module "kubernetes" {
-  source = "git::https://github.com/your-org/terraform-ovh-kubernetes.git?ref=v1.0.0"
+  source = "git::https://github.com/theobs-digital/terraform-ovh-kubernetes.git?ref=v1.0.1"
 
   service_name       = "your-ovh-project-id"
   kubernetes_name    = "my-cluster-prod"
@@ -119,62 +119,261 @@ terraform init
 terraform test
 ```
 
-<!-- BEGIN_TF_DOCS -->
 ## Requirements
 
-| Name | Version |
-|------|---------|
-| terraform | >= 1.5 |
-| ovh | >= 1.0, < 2.0 |
+| | Version | Checked with |
+|---|---|---|
+| Terraform | `>= 1.5` | 1.5.7 and 1.16.5 |
+| Provider [`ovh/ovh`](https://registry.terraform.io/providers/ovh/ovh/latest) | `~> 2.7` | 2.7.0 and 2.22.0 |
 
-## Providers
+## Reference
 
-| Name | Version |
-|------|---------|
-| ovh | >= 1.0, < 2.0 |
+<!-- BEGIN_TF_DOCS -->
+### Resources
 
-## Resources
+The following resources are used by this module:
 
-| Name | Type |
-|------|------|
-| [ovh_cloud_project_kube.this](https://registry.terraform.io/providers/ovh/ovh/latest/docs/resources/cloud_project_kube) | resource |
-| [ovh_cloud_project_kube_oidc.this](https://registry.terraform.io/providers/ovh/ovh/latest/docs/resources/cloud_project_kube_oidc) | resource |
-| [ovh_cloud_project_kube_iprestrictions.this](https://registry.terraform.io/providers/ovh/ovh/latest/docs/resources/cloud_project_kube_iprestrictions) | resource |
-| [ovh_cloud_project_kube_nodepool.this](https://registry.terraform.io/providers/ovh/ovh/latest/docs/resources/cloud_project_kube_nodepool) | resource |
+- [ovh_cloud_project_kube.this](https://registry.terraform.io/providers/ovh/ovh/latest/docs/resources/cloud_project_kube) (resource)
+- [ovh_cloud_project_kube_iprestrictions.this](https://registry.terraform.io/providers/ovh/ovh/latest/docs/resources/cloud_project_kube_iprestrictions) (resource)
+- [ovh_cloud_project_kube_nodepool.this](https://registry.terraform.io/providers/ovh/ovh/latest/docs/resources/cloud_project_kube_nodepool) (resource)
+- [ovh_cloud_project_kube_oidc.this](https://registry.terraform.io/providers/ovh/ovh/latest/docs/resources/cloud_project_kube_oidc) (resource)
 
-## Inputs
+### Required Inputs
 
-| Name | Description | Type | Default | Required |
-|------|-------------|------|---------|:--------:|
-| service\_name | OVH Public Cloud project service name (project ID) | `string` | n/a | yes |
-| kubernetes\_name | Kubernetes cluster name | `string` | n/a | yes |
-| kubernetes\_version | Kubernetes version (e.g. 1.32, 1.33) | `string` | n/a | yes |
-| kubernetes\_region | Kubernetes cluster region (e.g. GRA7, SBG5, BHS5) | `string` | n/a | yes |
-| kubernetes\_plan | Kubernetes plan: free or standard | `string` | `"free"` | no |
-| kubernetes\_proxy\_mode | Kube-proxy mode: iptables or ipvs | `string` | `"iptables"` | no |
-| kubernetes\_update\_policy | Cluster update policy: ALWAYS\_UPDATE, MINIMAL\_DOWNTIME, or NEVER\_UPDATE | `string` | `null` | no |
-| kubernetes\_private\_network\_id | The ID of the private network to attach to the Kubernetes cluster | `string` | `null` | no |
-| kubernetes\_nodes\_subnet\_id | The ID of the subnet for Kubernetes nodes | `string` | `null` | no |
-| kubernetes\_load\_balancers\_subnet\_id | The ID of the subnet for Kubernetes load balancers | `string` | `null` | no |
-| private\_network\_configuration | Private network configuration (vRack gateway) | `object({...})` | `null` | no |
-| kubernetes\_customization\_apiserver | Kubernetes API server admission plugins customization | `object({...})` | `{}` | no |
-| kubernetes\_customization\_kube\_proxy | Kubernetes kube-proxy customization (iptables or ipvs settings) | `object({...})` | `{}` | no |
-| kubernetes\_oidc | OIDC configuration for the Kubernetes cluster (client\_id, issuer\_url, claims, etc.) | `object({...})` | `null` | no |
-| kubernetes\_ip\_restrictions | List of CIDR blocks to restrict Kubernetes API access. Empty list means no restriction. | `list(string)` | `[]` | no |
-| kubernetes\_nodepools | List of Kubernetes node pools to create | `list(object({...}))` | `[]` | no |
+The following input variables are required:
 
-## Outputs
+#### <a name="input_kubernetes_name"></a> [kubernetes\_name](#input\_kubernetes\_name)
 
-| Name | Description | Sensitive |
-|------|-------------|:---------:|
-| kube\_id | Managed Kubernetes Service ID | no |
-| kube\_version | Kubernetes version | no |
-| kube\_status | Cluster status | no |
-| kubeconfig | Full kubeconfig file content | yes |
-| kubeconfig\_attributes | Kubeconfig parsed attributes | yes |
-| nodepools | Map of node pool name to node pool attributes | no |
+Description: Kubernetes cluster name
+
+Type: `string`
+
+#### <a name="input_kubernetes_region"></a> [kubernetes\_region](#input\_kubernetes\_region)
+
+Description: Kubernetes cluster region (e.g. GRA7, SBG5, BHS5)
+
+Type: `string`
+
+#### <a name="input_kubernetes_version"></a> [kubernetes\_version](#input\_kubernetes\_version)
+
+Description: Kubernetes version (e.g. 1.32, 1.33)
+
+Type: `string`
+
+#### <a name="input_service_name"></a> [service\_name](#input\_service\_name)
+
+Description: OVH Public Cloud project service name (project ID)
+
+Type: `string`
+
+### Optional Inputs
+
+The following input variables are optional (have default values):
+
+#### <a name="input_kubernetes_customization_apiserver"></a> [kubernetes\_customization\_apiserver](#input\_kubernetes\_customization\_apiserver)
+
+Description: Kubernetes API server admission plugins customization
+
+Type:
+
+```hcl
+object({
+    enabled  = optional(list(string), [])
+    disabled = optional(list(string), [])
+  })
+```
+
+Default: `{}`
+
+#### <a name="input_kubernetes_customization_kube_proxy"></a> [kubernetes\_customization\_kube\_proxy](#input\_kubernetes\_customization\_kube\_proxy)
+
+Description: Kubernetes kube-proxy customization (iptables or ipvs settings)
+
+Type:
+
+```hcl
+object({
+    iptables = optional(object({
+      sync_period     = optional(string)
+      min_sync_period = optional(string)
+    }))
+    ipvs = optional(object({
+      sync_period     = optional(string)
+      min_sync_period = optional(string)
+      scheduler       = optional(string)
+      tcp_timeout     = optional(string)
+      tcp_fin_timeout = optional(string)
+      udp_timeout     = optional(string)
+    }))
+  })
+```
+
+Default: `{}`
+
+#### <a name="input_kubernetes_ip_restrictions"></a> [kubernetes\_ip\_restrictions](#input\_kubernetes\_ip\_restrictions)
+
+Description: List of CIDR blocks to restrict Kubernetes API access. Empty list means no restriction.
+
+Type: `list(string)`
+
+Default: `[]`
+
+#### <a name="input_kubernetes_load_balancers_subnet_id"></a> [kubernetes\_load\_balancers\_subnet\_id](#input\_kubernetes\_load\_balancers\_subnet\_id)
+
+Description: The ID of the subnet for Kubernetes load balancers
+
+Type: `string`
+
+Default: `null`
+
+#### <a name="input_kubernetes_nodepools"></a> [kubernetes\_nodepools](#input\_kubernetes\_nodepools)
+
+Description: List of Kubernetes node pools to create
+
+Type:
+
+```hcl
+list(object({
+    name               = string
+    flavor_name        = string
+    desired_nodes      = optional(number, 1)
+    availability_zones = optional(list(string), [])
+    max_nodes          = optional(number, 3)
+    min_nodes          = optional(number, 1)
+    monthly_billed     = optional(bool, false)
+    anti_affinity      = optional(bool, false)
+    autoscale          = optional(bool, false)
+
+    autoscaling_scale_down_unneeded_time_seconds = optional(number)
+    autoscaling_scale_down_utilization_threshold = optional(number)
+    autoscaling_scale_down_unready_time_seconds  = optional(number)
+
+    template = optional(object({
+      metadata = optional(object({
+        annotations = optional(map(string))
+        finalizers  = optional(list(string))
+        labels      = optional(map(string))
+      }))
+      spec = optional(object({
+        unschedulable = optional(bool)
+        taints = optional(list(object({
+          key    = string
+          effect = string
+          value  = optional(string)
+        })))
+      }))
+    }))
+  }))
+```
+
+Default: `[]`
+
+#### <a name="input_kubernetes_nodes_subnet_id"></a> [kubernetes\_nodes\_subnet\_id](#input\_kubernetes\_nodes\_subnet\_id)
+
+Description: The ID of the subnet for Kubernetes nodes
+
+Type: `string`
+
+Default: `null`
+
+#### <a name="input_kubernetes_oidc"></a> [kubernetes\_oidc](#input\_kubernetes\_oidc)
+
+Description: OIDC configuration for the Kubernetes cluster
+
+Type:
+
+```hcl
+object({
+    client_id            = string
+    issuer_url           = string
+    oidc_username_claim  = optional(string)
+    oidc_username_prefix = optional(string)
+    oidc_groups_claim    = optional(list(string))
+    oidc_groups_prefix   = optional(string)
+    oidc_required_claim  = optional(list(string))
+    oidc_signing_algs    = optional(list(string))
+    oidc_ca_content      = optional(string)
+  })
+```
+
+Default: `null`
+
+#### <a name="input_kubernetes_plan"></a> [kubernetes\_plan](#input\_kubernetes\_plan)
+
+Description: Kubernetes plan: free or standard
+
+Type: `string`
+
+Default: `"free"`
+
+#### <a name="input_kubernetes_private_network_id"></a> [kubernetes\_private\_network\_id](#input\_kubernetes\_private\_network\_id)
+
+Description: The ID of the private network to attach to the Kubernetes cluster
+
+Type: `string`
+
+Default: `null`
+
+#### <a name="input_kubernetes_proxy_mode"></a> [kubernetes\_proxy\_mode](#input\_kubernetes\_proxy\_mode)
+
+Description: Kube-proxy mode: iptables or ipvs
+
+Type: `string`
+
+Default: `"iptables"`
+
+#### <a name="input_kubernetes_update_policy"></a> [kubernetes\_update\_policy](#input\_kubernetes\_update\_policy)
+
+Description: Cluster update policy: ALWAYS\_UPDATE, MINIMAL\_DOWNTIME, or NEVER\_UPDATE
+
+Type: `string`
+
+Default: `null`
+
+#### <a name="input_private_network_configuration"></a> [private\_network\_configuration](#input\_private\_network\_configuration)
+
+Description: Private network configuration (vRack gateway)
+
+Type:
+
+```hcl
+object({
+    default_vrack_gateway              = string
+    private_network_routing_as_default = bool
+  })
+```
+
+Default: `null`
+
+### Outputs
+
+The following outputs are exported:
+
+#### <a name="output_kube_id"></a> [kube\_id](#output\_kube\_id)
+
+Description: Managed Kubernetes Service ID
+
+#### <a name="output_kube_status"></a> [kube\_status](#output\_kube\_status)
+
+Description: Cluster status
+
+#### <a name="output_kube_version"></a> [kube\_version](#output\_kube\_version)
+
+Description: Kubernetes version
+
+#### <a name="output_kubeconfig"></a> [kubeconfig](#output\_kubeconfig)
+
+Description: Full kubeconfig file content
+
+#### <a name="output_kubeconfig_attributes"></a> [kubeconfig\_attributes](#output\_kubeconfig\_attributes)
+
+Description: Kubeconfig parsed attributes
+
+#### <a name="output_nodepools"></a> [nodepools](#output\_nodepools)
+
+Description: Map of node pool name to node pool attributes
 <!-- END_TF_DOCS -->
 
 ## License
 
-MIT
+[MIT](LICENSE)

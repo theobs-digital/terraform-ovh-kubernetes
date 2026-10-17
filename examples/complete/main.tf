@@ -1,16 +1,19 @@
+# Endpoint and credentials come from the OVH_* environment variables.
+provider "ovh" {}
+
 module "kubernetes" {
   source = "../../"
 
-  service_name       = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+  service_name       = var.service_name
   kubernetes_name    = "my-cluster-prod"
   kubernetes_version = "1.32"
   kubernetes_plan    = "standard"
   kubernetes_region  = "GRA7"
 
   # Network
-  kubernetes_private_network_id       = "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
-  kubernetes_nodes_subnet_id          = "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
-  kubernetes_load_balancers_subnet_id = "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+  kubernetes_private_network_id       = var.private_network_id
+  kubernetes_nodes_subnet_id          = var.nodes_subnet_id
+  kubernetes_load_balancers_subnet_id = var.load_balancers_subnet_id
 
   private_network_configuration = {
     default_vrack_gateway              = "10.0.0.1"
@@ -28,10 +31,10 @@ module "kubernetes" {
 
   # OIDC authentication
   kubernetes_oidc = {
-    client_id          = "my-k8s-client"
-    issuer_url         = "https://auth.example.com/realms/kubernetes"
-    oidc_groups_claim  = ["groups"]
-    oidc_groups_prefix = "oidc:"
+    client_id           = "my-k8s-client"
+    issuer_url          = "https://auth.example.com/realms/kubernetes"
+    oidc_groups_claim   = ["groups"]
+    oidc_groups_prefix  = "oidc:"
     oidc_username_claim = "email"
   }
 
@@ -88,13 +91,4 @@ module "kubernetes" {
       }
     },
   ]
-}
-
-output "cluster_id" {
-  value = module.kubernetes.kube_id
-}
-
-output "kubeconfig" {
-  value     = module.kubernetes.kubeconfig
-  sensitive = true
 }
