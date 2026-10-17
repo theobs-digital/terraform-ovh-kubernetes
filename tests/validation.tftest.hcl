@@ -8,16 +8,16 @@ mock_provider "ovh" {}
 
 variables {
   service_name       = "test-project-id"
-  kubernetes_name    = "abc"
+  name               = "abc"
   kubernetes_version = "1.32"
-  kubernetes_region  = "GRA7"
+  region             = "GRA7"
 }
 
 run "name_too_short" {
   command = plan
 
   expect_failures = [
-    var.kubernetes_name,
+    var.name,
   ]
 }
 
@@ -27,7 +27,7 @@ run "invalid_version_format" {
   command = plan
 
   variables {
-    kubernetes_name    = "test-cluster"
+    name               = "test-cluster"
     kubernetes_version = "v1.32.0"
   }
 
@@ -42,13 +42,13 @@ run "invalid_plan" {
   command = plan
 
   variables {
-    kubernetes_name    = "test-cluster"
+    name               = "test-cluster"
     kubernetes_version = "1.32"
-    kubernetes_plan    = "premium"
+    plan               = "premium"
   }
 
   expect_failures = [
-    var.kubernetes_plan,
+    var.plan,
   ]
 }
 
@@ -58,13 +58,13 @@ run "invalid_proxy_mode" {
   command = plan
 
   variables {
-    kubernetes_name       = "test-cluster"
-    kubernetes_version    = "1.32"
-    kubernetes_proxy_mode = "nftables"
+    name               = "test-cluster"
+    kubernetes_version = "1.32"
+    kube_proxy_mode    = "nftables"
   }
 
   expect_failures = [
-    var.kubernetes_proxy_mode,
+    var.kube_proxy_mode,
   ]
 }
 
@@ -74,13 +74,13 @@ run "invalid_ip_restriction" {
   command = plan
 
   variables {
-    kubernetes_name            = "test-cluster"
-    kubernetes_version         = "1.32"
-    kubernetes_ip_restrictions = ["not-a-cidr"]
+    name               = "test-cluster"
+    kubernetes_version = "1.32"
+    ips                = ["not-a-cidr"]
   }
 
   expect_failures = [
-    var.kubernetes_ip_restrictions,
+    var.ips,
   ]
 }
 
@@ -90,16 +90,16 @@ run "duplicate_nodepool_names" {
   command = plan
 
   variables {
-    kubernetes_name    = "test-cluster"
+    name               = "test-cluster"
     kubernetes_version = "1.32"
-    kubernetes_nodepools = [
-      { name = "pool-a", flavor_name = "b3-8" },
-      { name = "pool-a", flavor_name = "b3-16" },
-    ]
+    nodepools = {
+      pool-a = { name = "pool-a", flavor_name = "b3-8" }
+      pool-b = { name = "pool-a", flavor_name = "b3-16" }
+    }
   }
 
   expect_failures = [
-    var.kubernetes_nodepools,
+    var.nodepools,
   ]
 }
 
@@ -109,12 +109,12 @@ run "invalid_update_policy" {
   command = plan
 
   variables {
-    kubernetes_name          = "test-cluster"
-    kubernetes_version       = "1.32"
-    kubernetes_update_policy = "YOLO"
+    name               = "test-cluster"
+    kubernetes_version = "1.32"
+    update_policy      = "YOLO"
   }
 
   expect_failures = [
-    var.kubernetes_update_policy,
+    var.update_policy,
   ]
 }

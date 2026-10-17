@@ -21,16 +21,16 @@ module "kubernetes" {
   source = "git::https://github.com/theobs-digital/terraform-ovh-kubernetes.git?ref=v1.0.1"
 
   service_name       = "your-ovh-project-id"
-  kubernetes_name    = "my-cluster"
+  name               = "my-cluster"
   kubernetes_version = "1.32"
-  kubernetes_region  = "GRA7"
+  region             = "GRA7"
 
-  kubernetes_nodepools = [
-    {
+  nodepools = {
+    default = {
       name        = "default"
       flavor_name = "b3-8"
-    },
-  ]
+    }
+  }
 }
 ```
 
@@ -41,48 +41,48 @@ module "kubernetes" {
   source = "git::https://github.com/theobs-digital/terraform-ovh-kubernetes.git?ref=v1.0.1"
 
   service_name       = "your-ovh-project-id"
-  kubernetes_name    = "my-cluster-prod"
+  name               = "my-cluster-prod"
   kubernetes_version = "1.32"
-  kubernetes_plan    = "standard"
-  kubernetes_region  = "GRA7"
+  plan               = "standard"
+  region             = "GRA7"
 
   # Reseau prive (vRack)
-  kubernetes_private_network_id       = "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
-  kubernetes_nodes_subnet_id          = "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
-  kubernetes_load_balancers_subnet_id = "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+  private_network_id       = "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+  nodes_subnet_id          = "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+  load_balancers_subnet_id = "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
 
   private_network_configuration = {
     default_vrack_gateway              = "10.0.0.1"
     private_network_routing_as_default = true
   }
 
-  kubernetes_update_policy = "MINIMAL_DOWNTIME"
+  update_policy = "MINIMAL_DOWNTIME"
 
-  kubernetes_customization_apiserver = {
+  customization_apiserver = {
     enabled  = ["NodeRestriction"]
     disabled = ["AlwaysPullImages"]
   }
 
   # OIDC
-  kubernetes_oidc = {
+  oidc = {
     client_id  = "my-k8s-client"
     issuer_url = "https://auth.example.com/realms/k8s"
     oidc_groups_claim  = ["groups"]
     oidc_groups_prefix = "oidc:"
   }
 
-  kubernetes_ip_restrictions = ["203.0.113.0/24"]
+  ips = ["203.0.113.0/24"]
 
-  kubernetes_nodepools = [
-    {
+  nodepools = {
+    general = {
       name          = "general"
       flavor_name   = "b3-8"
       desired_nodes = 3
       max_nodes     = 5
       min_nodes     = 1
       autoscale     = true
-    },
-    {
+    }
+    gpu = {
       name          = "gpu"
       flavor_name   = "t2-45"
       desired_nodes = 1
@@ -103,8 +103,8 @@ module "kubernetes" {
           }]
         }
       }
-    },
-  ]
+    }
+  }
 }
 ```
 
@@ -142,27 +142,27 @@ The following resources are used by this module:
 
 The following input variables are required:
 
-#### <a name="input_kubernetes_name"></a> [kubernetes\_name](#input\_kubernetes\_name)
-
-Description: Kubernetes cluster name
-
-Type: `string`
-
-#### <a name="input_kubernetes_region"></a> [kubernetes\_region](#input\_kubernetes\_region)
-
-Description: Kubernetes cluster region (e.g. GRA7, SBG5, BHS5)
-
-Type: `string`
-
 #### <a name="input_kubernetes_version"></a> [kubernetes\_version](#input\_kubernetes\_version)
 
-Description: Kubernetes version (e.g. 1.32, 1.33)
+Description: Kubernetes version, such as `1.32` or `1.33`.
+
+Type: `string`
+
+#### <a name="input_name"></a> [name](#input\_name)
+
+Description: Kubernetes cluster name.
+
+Type: `string`
+
+#### <a name="input_region"></a> [region](#input\_region)
+
+Description: Kubernetes cluster region, such as `GRA7`, `SBG5` or `BHS5`.
 
 Type: `string`
 
 #### <a name="input_service_name"></a> [service\_name](#input\_service\_name)
 
-Description: OVH Public Cloud project service name (project ID)
+Description: OVH Public Cloud project service name (project ID).
 
 Type: `string`
 
@@ -170,9 +170,9 @@ Type: `string`
 
 The following input variables are optional (have default values):
 
-#### <a name="input_kubernetes_customization_apiserver"></a> [kubernetes\_customization\_apiserver](#input\_kubernetes\_customization\_apiserver)
+#### <a name="input_customization_apiserver"></a> [customization\_apiserver](#input\_customization\_apiserver)
 
-Description: Kubernetes API server admission plugins customization
+Description: Kubernetes API server admission plugins customization.
 
 Type:
 
@@ -185,9 +185,9 @@ object({
 
 Default: `{}`
 
-#### <a name="input_kubernetes_customization_kube_proxy"></a> [kubernetes\_customization\_kube\_proxy](#input\_kubernetes\_customization\_kube\_proxy)
+#### <a name="input_customization_kube_proxy"></a> [customization\_kube\_proxy](#input\_customization\_kube\_proxy)
 
-Description: Kubernetes kube-proxy customization (iptables or ipvs settings)
+Description: Kubernetes kube-proxy customization (`iptables` or `ipvs` settings).
 
 Type:
 
@@ -210,7 +210,7 @@ object({
 
 Default: `{}`
 
-#### <a name="input_kubernetes_ip_restrictions"></a> [kubernetes\_ip\_restrictions](#input\_kubernetes\_ip\_restrictions)
+#### <a name="input_ips"></a> [ips](#input\_ips)
 
 Description: List of CIDR blocks to restrict Kubernetes API access. Empty list means no restriction.
 
@@ -218,22 +218,30 @@ Type: `list(string)`
 
 Default: `[]`
 
-#### <a name="input_kubernetes_load_balancers_subnet_id"></a> [kubernetes\_load\_balancers\_subnet\_id](#input\_kubernetes\_load\_balancers\_subnet\_id)
+#### <a name="input_kube_proxy_mode"></a> [kube\_proxy\_mode](#input\_kube\_proxy\_mode)
 
-Description: The ID of the subnet for Kubernetes load balancers
+Description: Kube-proxy mode: `iptables` or `ipvs`.
+
+Type: `string`
+
+Default: `"iptables"`
+
+#### <a name="input_load_balancers_subnet_id"></a> [load\_balancers\_subnet\_id](#input\_load\_balancers\_subnet\_id)
+
+Description: The ID of the subnet for Kubernetes load balancers.
 
 Type: `string`
 
 Default: `null`
 
-#### <a name="input_kubernetes_nodepools"></a> [kubernetes\_nodepools](#input\_kubernetes\_nodepools)
+#### <a name="input_nodepools"></a> [nodepools](#input\_nodepools)
 
-Description: List of Kubernetes node pools to create
+Description: Kubernetes node pools to create, by a key of your choice. The key only names the node pool in the state: keep it stable, since renaming a key replaces the node pool.
 
 Type:
 
 ```hcl
-list(object({
+map(object({
     name               = string
     flavor_name        = string
     desired_nodes      = optional(number, 1)
@@ -266,19 +274,19 @@ list(object({
   }))
 ```
 
-Default: `[]`
+Default: `{}`
 
-#### <a name="input_kubernetes_nodes_subnet_id"></a> [kubernetes\_nodes\_subnet\_id](#input\_kubernetes\_nodes\_subnet\_id)
+#### <a name="input_nodes_subnet_id"></a> [nodes\_subnet\_id](#input\_nodes\_subnet\_id)
 
-Description: The ID of the subnet for Kubernetes nodes
+Description: The ID of the subnet for Kubernetes nodes.
 
 Type: `string`
 
 Default: `null`
 
-#### <a name="input_kubernetes_oidc"></a> [kubernetes\_oidc](#input\_kubernetes\_oidc)
+#### <a name="input_oidc"></a> [oidc](#input\_oidc)
 
-Description: OIDC configuration for the Kubernetes cluster
+Description: OIDC configuration for the Kubernetes cluster.
 
 Type:
 
@@ -298,41 +306,17 @@ object({
 
 Default: `null`
 
-#### <a name="input_kubernetes_plan"></a> [kubernetes\_plan](#input\_kubernetes\_plan)
+#### <a name="input_plan"></a> [plan](#input\_plan)
 
-Description: Kubernetes plan: free or standard
+Description: Kubernetes plan: `free` or `standard`.
 
 Type: `string`
 
 Default: `"free"`
 
-#### <a name="input_kubernetes_private_network_id"></a> [kubernetes\_private\_network\_id](#input\_kubernetes\_private\_network\_id)
-
-Description: The ID of the private network to attach to the Kubernetes cluster
-
-Type: `string`
-
-Default: `null`
-
-#### <a name="input_kubernetes_proxy_mode"></a> [kubernetes\_proxy\_mode](#input\_kubernetes\_proxy\_mode)
-
-Description: Kube-proxy mode: iptables or ipvs
-
-Type: `string`
-
-Default: `"iptables"`
-
-#### <a name="input_kubernetes_update_policy"></a> [kubernetes\_update\_policy](#input\_kubernetes\_update\_policy)
-
-Description: Cluster update policy: ALWAYS\_UPDATE, MINIMAL\_DOWNTIME, or NEVER\_UPDATE
-
-Type: `string`
-
-Default: `null`
-
 #### <a name="input_private_network_configuration"></a> [private\_network\_configuration](#input\_private\_network\_configuration)
 
-Description: Private network configuration (vRack gateway)
+Description: Private network configuration (vRack gateway).
 
 Type:
 
@@ -342,6 +326,22 @@ object({
     private_network_routing_as_default = bool
   })
 ```
+
+Default: `null`
+
+#### <a name="input_private_network_id"></a> [private\_network\_id](#input\_private\_network\_id)
+
+Description: The ID of the private network to attach to the Kubernetes cluster.
+
+Type: `string`
+
+Default: `null`
+
+#### <a name="input_update_policy"></a> [update\_policy](#input\_update\_policy)
+
+Description: Cluster update policy: `ALWAYS_UPDATE`, `MINIMAL_DOWNTIME` or `NEVER_UPDATE`.
+
+Type: `string`
 
 Default: `null`
 
@@ -371,7 +371,7 @@ Description: Kubeconfig parsed attributes
 
 #### <a name="output_nodepools"></a> [nodepools](#output\_nodepools)
 
-Description: Map of node pool name to node pool attributes
+Description: Map of node pool key, as in `nodepools`, to node pool attributes
 <!-- END_TF_DOCS -->
 
 ## License

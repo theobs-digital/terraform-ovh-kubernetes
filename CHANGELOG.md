@@ -7,6 +7,26 @@ and this module adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+### Changed
+
+- **BREAKING**: variables aligned on the provider's attributes:
+
+  | Before | After |
+  |---|---|
+  | `kubernetes_name` | `name` |
+  | `kubernetes_plan` | `plan` |
+  | `kubernetes_region` | `region` |
+  | `kubernetes_proxy_mode` | `kube_proxy_mode` |
+  | `kubernetes_update_policy` | `update_policy` |
+  | `kubernetes_private_network_id` | `private_network_id` |
+  | `kubernetes_nodes_subnet_id` | `nodes_subnet_id` |
+  | `kubernetes_load_balancers_subnet_id` | `load_balancers_subnet_id` |
+  | `kubernetes_customization_apiserver` | `customization_apiserver` |
+  | `kubernetes_customization_kube_proxy` | `customization_kube_proxy` |
+  | `kubernetes_oidc` | `oidc` |
+  | `kubernetes_ip_restrictions` | `ips` |
+  | `kubernetes_nodepools`, a list | `nodepools`, a map: key each node pool by its `name` to keep it in the state |
+
 ## [1.0.1] - 2026-10-17
 
 ### Fixed

@@ -38,7 +38,7 @@ output "kubeconfig_attributes" {
 ######################################
 
 output "nodepools" {
-  description = "Map of node pool name to node pool attributes"
+  description = "Map of node pool key, as in `nodepools`, to node pool attributes"
   value = { for k, v in ovh_cloud_project_kube_nodepool.this : k => {
     id            = v.id
     name          = v.name

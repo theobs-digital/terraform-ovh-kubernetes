@@ -1,28 +1,20 @@
-############################################
-# Global
-############################################
-
 variable "service_name" {
-  description = "OVH Public Cloud project service name (project ID)"
+  description = "OVH Public Cloud project service name (project ID)."
   type        = string
 }
 
-############################################
-# Cluster configuration
-############################################
-
-variable "kubernetes_name" {
-  description = "Kubernetes cluster name"
+variable "name" {
+  description = "Kubernetes cluster name."
   type        = string
 
   validation {
-    condition     = length(var.kubernetes_name) >= 5 && length(var.kubernetes_name) <= 63
-    error_message = "kubernetes_name must be between 5 and 63 characters."
+    condition     = length(var.name) >= 5 && length(var.name) <= 63
+    error_message = "name must be between 5 and 63 characters."
   }
 }
 
 variable "kubernetes_version" {
-  description = "Kubernetes version (e.g. 1.32, 1.33)"
+  description = "Kubernetes version, such as `1.32` or `1.33`."
   type        = string
 
   validation {
@@ -31,68 +23,64 @@ variable "kubernetes_version" {
   }
 }
 
-variable "kubernetes_plan" {
-  description = "Kubernetes plan: free or standard"
+variable "plan" {
+  description = "Kubernetes plan: `free` or `standard`."
   type        = string
   default     = "free"
 
   validation {
-    condition     = contains(["free", "standard"], var.kubernetes_plan)
-    error_message = "kubernetes_plan must be one of: free, standard."
+    condition     = contains(["free", "standard"], var.plan)
+    error_message = "plan must be one of: free, standard."
   }
 }
 
-variable "kubernetes_region" {
-  description = "Kubernetes cluster region (e.g. GRA7, SBG5, BHS5)"
+variable "region" {
+  description = "Kubernetes cluster region, such as `GRA7`, `SBG5` or `BHS5`."
   type        = string
 }
 
-variable "kubernetes_proxy_mode" {
-  description = "Kube-proxy mode: iptables or ipvs"
+variable "kube_proxy_mode" {
+  description = "Kube-proxy mode: `iptables` or `ipvs`."
   type        = string
   default     = "iptables"
 
   validation {
-    condition     = contains(["iptables", "ipvs"], var.kubernetes_proxy_mode)
-    error_message = "kubernetes_proxy_mode must be one of: iptables, ipvs."
+    condition     = contains(["iptables", "ipvs"], var.kube_proxy_mode)
+    error_message = "kube_proxy_mode must be one of: iptables, ipvs."
   }
 }
 
-variable "kubernetes_update_policy" {
-  description = "Cluster update policy: ALWAYS_UPDATE, MINIMAL_DOWNTIME, or NEVER_UPDATE"
+variable "update_policy" {
+  description = "Cluster update policy: `ALWAYS_UPDATE`, `MINIMAL_DOWNTIME` or `NEVER_UPDATE`."
   type        = string
   default     = null
 
   validation {
-    condition     = var.kubernetes_update_policy == null ? true : contains(["ALWAYS_UPDATE", "MINIMAL_DOWNTIME", "NEVER_UPDATE"], var.kubernetes_update_policy)
-    error_message = "kubernetes_update_policy must be one of: ALWAYS_UPDATE, MINIMAL_DOWNTIME, NEVER_UPDATE."
+    condition     = var.update_policy == null ? true : contains(["ALWAYS_UPDATE", "MINIMAL_DOWNTIME", "NEVER_UPDATE"], var.update_policy)
+    error_message = "update_policy must be one of: ALWAYS_UPDATE, MINIMAL_DOWNTIME, NEVER_UPDATE."
   }
 }
 
-############################################
-# Network
-############################################
-
-variable "kubernetes_private_network_id" {
-  description = "The ID of the private network to attach to the Kubernetes cluster"
+variable "private_network_id" {
+  description = "The ID of the private network to attach to the Kubernetes cluster."
   type        = string
   default     = null
 }
 
-variable "kubernetes_nodes_subnet_id" {
-  description = "The ID of the subnet for Kubernetes nodes"
+variable "nodes_subnet_id" {
+  description = "The ID of the subnet for Kubernetes nodes."
   type        = string
   default     = null
 }
 
-variable "kubernetes_load_balancers_subnet_id" {
-  description = "The ID of the subnet for Kubernetes load balancers"
+variable "load_balancers_subnet_id" {
+  description = "The ID of the subnet for Kubernetes load balancers."
   type        = string
   default     = null
 }
 
 variable "private_network_configuration" {
-  description = "Private network configuration (vRack gateway)"
+  description = "Private network configuration (vRack gateway)."
   type = object({
     default_vrack_gateway              = string
     private_network_routing_as_default = bool
@@ -100,12 +88,8 @@ variable "private_network_configuration" {
   default = null
 }
 
-############################################
-# API Server customization
-############################################
-
-variable "kubernetes_customization_apiserver" {
-  description = "Kubernetes API server admission plugins customization"
+variable "customization_apiserver" {
+  description = "Kubernetes API server admission plugins customization."
   type = object({
     enabled  = optional(list(string), [])
     disabled = optional(list(string), [])
@@ -113,12 +97,8 @@ variable "kubernetes_customization_apiserver" {
   default = {}
 }
 
-############################################
-# Kube-proxy customization
-############################################
-
-variable "kubernetes_customization_kube_proxy" {
-  description = "Kubernetes kube-proxy customization (iptables or ipvs settings)"
+variable "customization_kube_proxy" {
+  description = "Kubernetes kube-proxy customization (`iptables` or `ipvs` settings)."
   type = object({
     iptables = optional(object({
       sync_period     = optional(string)
@@ -136,12 +116,8 @@ variable "kubernetes_customization_kube_proxy" {
   default = {}
 }
 
-############################################
-# OIDC
-############################################
-
-variable "kubernetes_oidc" {
-  description = "OIDC configuration for the Kubernetes cluster"
+variable "oidc" {
+  description = "OIDC configuration for the Kubernetes cluster."
   type = object({
     client_id            = string
     issuer_url           = string
@@ -156,28 +132,20 @@ variable "kubernetes_oidc" {
   default = null
 }
 
-############################################
-# IP Restrictions
-############################################
-
-variable "kubernetes_ip_restrictions" {
+variable "ips" {
   description = "List of CIDR blocks to restrict Kubernetes API access. Empty list means no restriction."
   type        = list(string)
   default     = []
 
   validation {
-    condition     = length(var.kubernetes_ip_restrictions) == 0 || alltrue([for ip in var.kubernetes_ip_restrictions : can(cidrnetmask(ip))])
-    error_message = "Each item in kubernetes_ip_restrictions must be a valid CIDR block (e.g. 10.0.0.0/8)."
+    condition     = length(var.ips) == 0 || alltrue([for ip in var.ips : can(cidrnetmask(ip))])
+    error_message = "Each item in ips must be a valid CIDR block (e.g. 10.0.0.0/8)."
   }
 }
 
-############################################
-# Node Pools
-############################################
-
-variable "kubernetes_nodepools" {
-  description = "List of Kubernetes node pools to create"
-  type = list(object({
+variable "nodepools" {
+  description = "Kubernetes node pools to create, by a key of your choice. The key only names the node pool in the state: keep it stable, since renaming a key replaces the node pool."
+  type = map(object({
     name               = string
     flavor_name        = string
     desired_nodes      = optional(number, 1)
@@ -208,10 +176,10 @@ variable "kubernetes_nodepools" {
       }))
     }))
   }))
-  default = []
+  default = {}
 
   validation {
-    condition     = length(var.kubernetes_nodepools) == length(distinct([for np in var.kubernetes_nodepools : np.name]))
+    condition     = length(var.nodepools) == length(distinct([for np in var.nodepools : np.name]))
     error_message = "Node pool names must be unique."
   }
 }

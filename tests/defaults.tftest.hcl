@@ -6,9 +6,9 @@ mock_provider "ovh" {}
 
 variables {
   service_name       = "test-project-id"
-  kubernetes_name    = "test-cluster"
+  name               = "test-cluster"
   kubernetes_version = "1.32"
-  kubernetes_region  = "GRA7"
+  region             = "GRA7"
 }
 
 run "minimal_config_plan" {

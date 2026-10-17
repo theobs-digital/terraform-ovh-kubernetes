@@ -5,15 +5,15 @@ module "kubernetes" {
   source = "../../"
 
   service_name       = var.service_name
-  kubernetes_name    = "my-cluster-prod"
+  name               = "my-cluster-prod"
   kubernetes_version = "1.32"
-  kubernetes_plan    = "standard"
-  kubernetes_region  = "GRA7"
+  plan               = "standard"
+  region             = "GRA7"
 
   # Network
-  kubernetes_private_network_id       = var.private_network_id
-  kubernetes_nodes_subnet_id          = var.nodes_subnet_id
-  kubernetes_load_balancers_subnet_id = var.load_balancers_subnet_id
+  private_network_id       = var.private_network_id
+  nodes_subnet_id          = var.nodes_subnet_id
+  load_balancers_subnet_id = var.load_balancers_subnet_id
 
   private_network_configuration = {
     default_vrack_gateway              = "10.0.0.1"
@@ -21,16 +21,16 @@ module "kubernetes" {
   }
 
   # Update policy
-  kubernetes_update_policy = "MINIMAL_DOWNTIME"
+  update_policy = "MINIMAL_DOWNTIME"
 
   # API Server customization
-  kubernetes_customization_apiserver = {
+  customization_apiserver = {
     enabled  = ["NodeRestriction"]
     disabled = ["AlwaysPullImages"]
   }
 
   # OIDC authentication
-  kubernetes_oidc = {
+  oidc = {
     client_id           = "my-k8s-client"
     issuer_url          = "https://auth.example.com/realms/kubernetes"
     oidc_groups_claim   = ["groups"]
@@ -39,14 +39,14 @@ module "kubernetes" {
   }
 
   # IP Restrictions
-  kubernetes_ip_restrictions = [
+  ips = [
     "203.0.113.0/24",
     "198.51.100.0/24",
   ]
 
   # Node Pools
-  kubernetes_nodepools = [
-    {
+  nodepools = {
+    general = {
       name          = "general"
       flavor_name   = "b3-8"
       desired_nodes = 3
@@ -63,8 +63,8 @@ module "kubernetes" {
           }
         }
       }
-    },
-    {
+    }
+    gpu-workers = {
       name           = "gpu-workers"
       flavor_name    = "t2-45"
       desired_nodes  = 1
@@ -89,6 +89,6 @@ module "kubernetes" {
           ]
         }
       }
-    },
-  ]
+    }
+  }
 }
