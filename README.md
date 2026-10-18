@@ -856,12 +856,21 @@ OVHcloud API is signed.
 
 ### Release
 
-Update `CHANGELOG.md`, then tag the commit and push the tag:
+Each pull request writes its changes under `[Unreleased]` in
+`CHANGELOG.md`, and takes a
+[Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) title.
+On each push to `main`, the [Release](.github/workflows/release.yml) workflow
+reads the commits since the last tag, merge commits left out, and the
+strongest one gives the version:
 
-```bash
-git tag -a vX.Y.Z -m "terraform-ovh-kubernetes vX.Y.Z"
-git push origin vX.Y.Z
-```
+| Commits since the last tag | Version |
+|---|---|
+| a `!` after the type, such as `refactor!:`, or a `BREAKING CHANGE:` footer | major, a minor one before v1.0.0 |
+| `feat:` | minor |
+| `fix:` or `perf:` | patch |
+| only other types, such as `ci:`, `docs:`, `test:` or `chore:` | none: the changes wait for the next version |
 
-The [Release](.github/workflows/release.yml) workflow then creates the
-GitHub release of the tag, with its section of the `CHANGELOG.md` as notes.
+It then dates the `[Unreleased]` section, bumps the `?ref=` of this README,
+commits `chore: release vX.Y.Z`, tags it, and creates the GitHub release with
+that section as notes. It fails when `[Unreleased]` is empty. A tag pushed by
+hand also gets its release.
