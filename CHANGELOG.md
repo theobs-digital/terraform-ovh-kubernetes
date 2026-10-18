@@ -10,6 +10,13 @@ and this module adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.
 ### Added
 
 - The workflow `Release`: the GitHub release of each tag, with its section of this file as notes
+- Tests against the real API, in `tests-real`: a Free cluster `tf-test-ci-kubernetes` with one `b3-8` node, OIDC and IP restrictions, then a plan that must replace nothing. `terraform test` runs them only when asked
+- The workflow `Real API tests`: runs them on demand, weekly once its schedule is uncommented
+- Example `import`: an existing cluster, its OIDC configuration, IP restrictions and node pool brought under the module with `import` blocks
+
+### Changed
+
+- README rewritten in the form of cloudflare-dns
 
 ## [2.0.0] - 2026-10-17
 

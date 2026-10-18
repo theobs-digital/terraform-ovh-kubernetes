@@ -1,44 +1,32 @@
-######################################
-# Cluster
-######################################
-
 output "kube_id" {
-  description = "Managed Kubernetes Service ID"
+  description = "ID of the Managed Kubernetes Service cluster, for the resources and API calls that act on it."
   value       = ovh_cloud_project_kube.this.id
 }
 
 output "kube_version" {
-  description = "Kubernetes version"
+  description = "Kubernetes version of the cluster, for the clients that must match it, such as `kubectl`."
   value       = ovh_cloud_project_kube.this.version
 }
 
 output "kube_status" {
-  description = "Cluster status"
+  description = "Status of the cluster, normally `READY`, to check that it is up."
   value       = ovh_cloud_project_kube.this.status
 }
 
-######################################
-# Kubeconfig (Sensitive)
-######################################
-
 output "kubeconfig" {
-  description = "Full kubeconfig file content"
+  description = "Full content of the kubeconfig file, to connect `kubectl` and the other Kubernetes clients to the cluster."
   value       = ovh_cloud_project_kube.this.kubeconfig
   sensitive   = true
 }
 
 output "kubeconfig_attributes" {
-  description = "Kubeconfig parsed attributes"
+  description = "Parsed attributes of the kubeconfig, a list of one object: `host`, and the base64-encoded `cluster_ca_certificate`, `client_certificate` and `client_key`, to configure a provider such as `kubernetes` or `helm`."
   value       = ovh_cloud_project_kube.this.kubeconfig_attributes
   sensitive   = true
 }
 
-######################################
-# Node Pools
-######################################
-
 output "nodepools" {
-  description = "Map of node pool key, as in `nodepools`, to node pool attributes"
+  description = "Attributes of each node pool, by key of `nodepools`: `id`, `name`, `flavor_name`, `desired_nodes`, `current_nodes`, `max_nodes`, `min_nodes`, `status` and `autoscale`, to follow its size and status."
   value = { for k, v in ovh_cloud_project_kube_nodepool.this : k => {
     id            = v.id
     name          = v.name

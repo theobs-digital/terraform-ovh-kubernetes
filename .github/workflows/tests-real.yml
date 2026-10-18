@@ -1,0 +1,54 @@
+# The tests against the real API, in tests-real/. Lock files are not
+# committed, so each run takes the newest provider release the constraint
+# allows and catches its regressions. One job per module, named after its
+# folder in a monorepository: the watch reads each job's result.
+name: Real API tests
+
+on:
+  # Daily where a run costs nothing ("0 5 * * *"), weekly where it creates
+  # billed resources ("0 5 * * 1"). Disabled until the test project and its
+  # secrets exist: uncomment the two lines below to enable it.
+  # schedule:
+  #   - cron: "0 5 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# Two runs at once would create the same objects twice.
+concurrency: tests-real
+
+jobs:
+  terraform-ovh-kubernetes:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    defaults:
+      run:
+        shell: bash
+        working-directory: .
+    # Secrets rather than variables: GitHub masks them in the public logs.
+    env:
+      OVH_ENDPOINT: ${{ secrets.OVH_ENDPOINT }}
+      OVH_APPLICATION_KEY: ${{ secrets.OVH_APPLICATION_KEY }}
+      OVH_APPLICATION_SECRET: ${{ secrets.OVH_APPLICATION_SECRET }}
+      OVH_CONSUMER_KEY: ${{ secrets.OVH_CONSUMER_KEY }}
+      TF_VAR_service_name: ${{ secrets.TEST_SERVICE_NAME }}
+      TF_VAR_region: ${{ secrets.TEST_REGION }}
+      TF_VAR_kubernetes_version: ${{ secrets.TEST_KUBERNETES_VERSION }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: hashicorp/setup-terraform@dfe3c3f87815947d99a8997f908cb6525fc44e9e # v4.0.1
+        with:
+          terraform_version: 1.16.5
+          terraform_wrapper: false
+
+      - run: terraform init -backend=false
+
+      # No cleanup step: each call to the OVHcloud API is signed with the
+      # application secret, more than a plain curl does. terraform test
+      # destroys what it created; a run cut short leaves the cluster
+      # tf-test-ci-kubernetes and its node behind, to delete by hand.
+      - run: terraform test -test-directory=tests-real
