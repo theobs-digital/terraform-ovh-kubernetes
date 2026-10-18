@@ -402,8 +402,10 @@ current name: an input left at the module's default, such as
 `kube_proxy_mode = "iptables"` on a cluster in `ipvs` mode, plans a
 replacement, which deletes the cluster. Apply only a plan that imports and
 destroys nothing: look for `must be replaced` in it. `import` blocks need
-Terraform 1.5 or later, and 1.6 to take variables in `id`; before, run
-`terraform import` with the same address and ID.
+Terraform 1.5.2 or later: the cluster, its OIDC configuration and its IP
+restrictions share one ID, and Terraform refuses two `import` blocks with the
+same `id` before 1.5.2. Variables in `id` need 1.6. With an older Terraform,
+run `terraform import` with the same address and ID.
 
 ### Move resources into the module
 
@@ -514,7 +516,8 @@ module "kubernetes" {
 | Terraform | `>= 1.5` | 1.5.7 and 1.16.5 |
 | Provider [`ovh/ovh`](https://registry.terraform.io/providers/ovh/ovh/latest) | `~> 2.7`, the first with the `plan` attribute of `ovh_cloud_project_kube` | 2.7.0 and 2.22.0 |
 
-`import` blocks need Terraform 1.5 or later, the
+`import` blocks need Terraform 1.5.2 or later, since three of them share one
+ID (see [Adopt existing resources](#adopt-existing-resources)), the
 [import example](examples/import) 1.6, and `removed` blocks 1.7. The provider
 reads the API endpoint from `OVH_ENDPOINT`, and the credentials from
 `OVH_CLIENT_ID` and `OVH_CLIENT_SECRET`, or from `OVH_APPLICATION_KEY`,
@@ -814,19 +817,28 @@ and its `basic` and `complete` examples with Terraform 1.5.7 and provider
 
 ### Real API tests
 
-The mock tests cannot see what OVHcloud does with a value. The tests in
-`tests-real` create a Free cluster named `tf-test-ci-kubernetes`, with one
-`b3-8` node, OIDC and IP restrictions, plan again, which must replace
-nothing, then destroy it. The node is billed while they run.
+The mock tests cannot see what OVHcloud does with a value. `tests-real` is a
+configuration that calls the module: a Free cluster named
+`tf-test-ci-kubernetes`, with one `b3-8` node, OIDC and IP restrictions.
+Apply it, plan it again, which must show no change, then destroy it. The node
+is billed while it exists.
 
 ```bash
+cd tests-real
 export OVH_ENDPOINT=ovh-eu OVH_APPLICATION_KEY=... OVH_APPLICATION_SECRET=... OVH_CONSUMER_KEY=...
 export TF_VAR_service_name=... TF_VAR_region=GRA7 TF_VAR_kubernetes_version=1.32
-terraform test -test-directory=tests-real
+terraform init
+terraform apply
+terraform plan -detailed-exitcode
+terraform destroy
 ```
 
-The [Real API tests](.github/workflows/tests-real.yml) workflow runs them on
-demand, from the Actions tab. Its weekly schedule, on Mondays at 05:00 UTC,
+A second plan with a change is a provider that drifts from what it applied.
+The apply also fails when the node pool ends in `ERROR`, which the provider
+accepts as the end of its create.
+The [Real API tests](.github/workflows/tests-real.yml) workflow runs the
+same on demand, from the Actions tab, and destroys the cluster even when a
+step fails. Its weekly schedule, on Mondays at 05:00 UTC,
 stays commented out until the test project and these repository secrets
 exist:
 
@@ -838,8 +850,9 @@ exist:
 | `TEST_REGION` | a region of that project, such as `GRA7` |
 | `TEST_KUBERNETES_VERSION` | a minor release that MKS offers, such as `1.32` |
 
-A run cut short leaves the cluster `tf-test-ci-kubernetes` behind: delete it
-by hand. The workflow cannot, since each call to the OVHcloud API is signed.
+A destroy that fails leaves the cluster `tf-test-ci-kubernetes` behind:
+delete it by hand. The workflow has no cleanup step, since each call to the
+OVHcloud API is signed.
 
 ### Release
 
