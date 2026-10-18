@@ -1,7 +1,3 @@
-##############################
-# Kubernetes Cluster
-##############################
-
 resource "ovh_cloud_project_kube" "this" {
   service_name             = var.service_name
   name                     = var.name
@@ -13,10 +9,6 @@ resource "ovh_cloud_project_kube" "this" {
   private_network_id       = var.private_network_id
   nodes_subnet_id          = var.nodes_subnet_id
   load_balancers_subnet_id = var.load_balancers_subnet_id
-
-  ###########################################
-  # API Server Customization
-  ###########################################
 
   dynamic "customization_apiserver" {
     for_each = (
@@ -31,10 +23,6 @@ resource "ovh_cloud_project_kube" "this" {
       }
     }
   }
-
-  ###########################################
-  # Kube Proxy Customization
-  ###########################################
 
   dynamic "customization_kube_proxy" {
     for_each = (
@@ -67,10 +55,6 @@ resource "ovh_cloud_project_kube" "this" {
     }
   }
 
-  ###########################################
-  # Private Network Configuration
-  ###########################################
-
   dynamic "private_network_configuration" {
     for_each = var.private_network_configuration != null ? [var.private_network_configuration] : []
 
@@ -80,10 +64,6 @@ resource "ovh_cloud_project_kube" "this" {
     }
   }
 }
-
-##############################
-# OIDC
-##############################
 
 resource "ovh_cloud_project_kube_oidc" "this" {
   count = var.oidc != null ? 1 : 0
@@ -102,10 +82,6 @@ resource "ovh_cloud_project_kube_oidc" "this" {
   oidc_ca_content      = var.oidc.oidc_ca_content
 }
 
-##############################
-# IP Restrictions
-##############################
-
 resource "ovh_cloud_project_kube_iprestrictions" "this" {
   count = length(var.ips) > 0 ? 1 : 0
 
@@ -113,10 +89,6 @@ resource "ovh_cloud_project_kube_iprestrictions" "this" {
   kube_id      = ovh_cloud_project_kube.this.id
   ips          = var.ips
 }
-
-##############################
-# Node Pools
-##############################
 
 resource "ovh_cloud_project_kube_nodepool" "this" {
   for_each = var.nodepools
