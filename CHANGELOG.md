@@ -9,7 +9,7 @@ and this module adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.
 
 ### Added
 
-- The workflow `Release`: the GitHub release of each tag, with its section of this file as notes
+- The workflow `Release`: on each push to `main`, the version the commit types call for (Conventional Commits), with this section dated, the `?ref=` of the README bumped, a `chore: release vX.Y.Z` commit tagged, and its GitHub release; a tag pushed by hand also gets its release
 - Tests against the real API, in `tests-real`: a configuration that calls the module, a Free cluster `tf-test-ci-kubernetes` with one `b3-8` node, OIDC and IP restrictions, applied, which fails on a node pool in `ERROR`, planned again, which must show no change, then destroyed
 - The workflow `Real API tests`: runs them on demand, weekly once its schedule is uncommented, and destroys the cluster even when a step fails
 - Example `import`: an existing cluster, its OIDC configuration, IP restrictions and node pool brought under the module with `import` blocks
